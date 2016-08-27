@@ -32,7 +32,8 @@ _Abilities:_
 ```
 
 #### Player
-A player can perform chores and earn rewards and achievements. In a family setting, this will typically be the kids.
+A player can perform chores and earn rewards and achievements. In a family setting, this will typically be the kids. A Player 
+is associated with only one game (e.g. the same Player cannot occur in two different games).
 
 _Abilities:_
 * See upcoming (e.g. today's chores)
@@ -44,21 +45,45 @@ _Abilities:_
 ```JSON
 {
     "id": "P123",
+    "userId": "U123",
     "game": "G123",
-    "name": "Jonathan"
-    "score": {
+    "name": "Jonathan",
+    "rewards": {
         "R1": 1000,
         "R123": 123
     },
-    "chores": [
+    "assignedChores": ["C123"],
+    "*doneChores": [
         {
-            "id": "C123",
-            "doneTimestamp": "2015-07-14T10:08:15Z",
+            "id": "CI123",
+            "choreId": "C123",
+            "deadlineTimestamp": "2016-08-27T10:00:00Z",
+            "doneTimestamp": "2016-08-27T09:08:15Z",
+            "approvedTimestamp": "2016-08-27T22:08:15Z"
+        },
+        {
+            "id": "CI456",
+            "choreId": "C123",
+            "deadlineTimestamp": "2016-08-28T10:00:00Z",
+            "doneTimestamp": "2016-08-28T12:22:45Z"
         }
     ],
-    "achievements": ["", "", ""]
+    "*earnedAchievements": [
+        {
+            "id": "AI123",
+            "achievementId": "A123",
+            "playerId": "P123",
+            "timestamp": "2016-08-27T09:08:15Z"
+        }
+    ]
 }
 ```
+
+Relations:
+* ManyToMany Chore
+* OneToMany ChoreInstance
+* OneToMany AchievementInstance
+
 
 #### Chore
 A "doable", something that can trigger a reward if done.
@@ -69,13 +94,29 @@ A "doable", something that can trigger a reward if done.
     "name": "Re opp sengen din",
     "description": "",
     "image": "...base64encoded...",
-    "requireApprovalByGM": "true",
+    "requireApproval": true,
     "rewards": [
         {
             "reward": "R123",
             "quantity": "10"
         }
-    ]
+    ],
+    "repetition": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+}
+```
+
+#### DoneChore
+While the _Chore_ model (above) is a definition/description of the chore, the _ChoreInstance_ represents a
+done or executed/accomplished chore by a specific Player.
+
+```JSON
+{
+    "id": "CI123",
+    "choreId": "C123"
+    "playerId": "P123",
+    "deadlineTimestamp": "2016-08-27T10:00:00Z"
+    "doneTimestamp": "2016-08-27T09:08:15Z"
+    "approvedTimestamp": "2016-08-27T22:08:15Z"
 }
 ```
 
@@ -116,10 +157,22 @@ An achievement can be either public or secret. Players will be able to browse (a
     "criteria": "choreX x 10",
     "rewards": [
         {
-            "rewardType": "PO123",
+            "rewardType": "R1",
             "quantity": "10"
         }
     ]
 }
 ```
 
+#### EarnedAchievement
+While the _Achievement_ model (above) is a definition/description of an achievement, the _AchievementInstance_ represents
+an earned achievement by a specific Player.
+
+```JSON
+{
+    "id": "AI123",
+    "achievementId": "A123",
+    "playerId": "P123",
+    "timestamp": "2016-08-27T09:08:15Z"
+}
+```
